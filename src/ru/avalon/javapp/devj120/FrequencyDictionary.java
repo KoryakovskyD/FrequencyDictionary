@@ -5,12 +5,15 @@ import java.util.*;
 
 public class FrequencyDictionary {
     private final Map<String, Integer > dictionaryList = new HashMap<>();
+    private final String REPORT1 = "report1.txt";
+    private final String REPORT2 = "report2.txt";
 
     public FrequencyDictionary(String fileName) throws IOException{
         read(fileName);
         save();
     }
 
+    // чтение файла
     private void read(String fileName) throws IOException{
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String s;
@@ -43,8 +46,9 @@ public class FrequencyDictionary {
         }
     }
 
+    // запись результата в два файла отчета
     private void save() throws IOException {
-        try(PrintWriter pw = new PrintWriter("report1.txt")) {
+        try(PrintWriter pw = new PrintWriter(REPORT1)) {
             TreeMap<String , Integer> sorted = new TreeMap<>();
             sorted.putAll(dictionaryList);
             for (Map.Entry<String, Integer> kv : sorted.entrySet()) {
@@ -53,12 +57,13 @@ public class FrequencyDictionary {
 
         }
 
-        try(PrintWriter pw = new PrintWriter("report2.txt")) {
+        try(PrintWriter pw = new PrintWriter(REPORT2)) {
             TreeMap<String , Integer> sorted = new TreeMap<>();
             sorted.putAll(dictionaryList);
 
             sorted.entrySet().stream().sorted(Map.Entry.<String , Integer>comparingByValue().reversed())
-                    .forEach(x -> pw.println(x));
+                    .forEach(x -> pw.println(x.getKey() + "  relative=" + x.getValue() + " absolute="
+                            + (double)x.getValue()/dictionaryList.size()));
         }
     }
  }

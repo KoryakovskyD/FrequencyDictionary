@@ -3,6 +3,7 @@ package ru.avalon.javapp.devj120;
 import java.io.*;
 
 public class Main {
+
     public static void main(String[] args) throws IOException {
 
         // проверка на вызов программы без параметров
