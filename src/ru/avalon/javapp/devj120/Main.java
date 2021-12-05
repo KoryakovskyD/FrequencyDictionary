@@ -1,10 +1,10 @@
 package ru.avalon.javapp.devj120;
 
-import java.io.*;
+import java.io.File;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         // проверка на вызов программы без параметров
         if (args.length == 0) {
@@ -16,8 +16,6 @@ public class Main {
         for (String fileName: args) {
             FrequencyDictionary fd = new FrequencyDictionary(fileName);
         }
-
-
     }
 
     private static void Check(String[] args) {

@@ -8,9 +8,17 @@ public class FrequencyDictionary {
     private final String REPORT1 = "report1.txt";
     private final String REPORT2 = "report2.txt";
 
-    public FrequencyDictionary(String fileName) throws IOException{
-        read(fileName);
-        save();
+    public FrequencyDictionary(String fileName){
+        try {
+            read(fileName);
+        } catch (IOException e) {
+            System.out.println("Some kind of problem with reading file " + fileName);
+        }
+        try {
+            save();
+        } catch (IOException e) {
+            System.out.println("Some kind of problem with creating file " + REPORT1 + " or " + REPORT2);
+        }
     }
 
     // чтение файла
