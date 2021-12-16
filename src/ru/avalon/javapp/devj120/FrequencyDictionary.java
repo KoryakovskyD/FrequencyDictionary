@@ -5,73 +5,101 @@ import java.util.*;
 
 public class FrequencyDictionary {
     private final Map<String, Integer > dictionaryList = new HashMap<>();
-    private final String REPORT1 = "report1.txt";
-    private final String REPORT2 = "report2.txt";
-
-    public FrequencyDictionary(String fileName){
-        try {
-            read(fileName);
-        } catch (IOException e) {
-            System.out.println("Some kind of problem with reading file " + fileName);
-        }
-        try {
-            save();
-        } catch (IOException e) {
-            System.out.println("Some kind of problem with creating file " + REPORT1 + " or " + REPORT2);
-        }
-    }
 
     // чтение файла
-    private void read(String fileName) throws IOException{
+    public void read(String fileName){
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String s;
             while ((s = br.readLine()) != null) {
                 if (s.isEmpty()) continue;
 
-                String word = "";
+                StringBuilder word = new StringBuilder();
                 char[] charArray = s.toCharArray();
-                Character curChar;
+                char curChar;
                 for (int i = 0; i < s.length(); i++) {
                     curChar = charArray[i];
-                    if (Character.UnicodeBlock.of(charArray[i]).equals(Character.UnicodeBlock.CYRILLIC) || curChar.equals('-')) {
-                        word = word + curChar;
+                    if (Character.UnicodeBlock.of(charArray[i]).equals(Character.UnicodeBlock.CYRILLIC) || curChar == ('-')) {
+                        word.append(curChar);
                         if (i!=s.length()-1) continue;
                     }
 
-                   if (word != "") {
-                        if (dictionaryList.containsKey(word.toLowerCase(Locale.ROOT))) {
-                            int savVal = dictionaryList.get(word.toLowerCase(Locale.ROOT));
-                            dictionaryList.replace(word.toLowerCase(Locale.ROOT), savVal, savVal+1);
-                            word="";
+                   if (!word.isEmpty()) {
+                        if (dictionaryList.containsKey(word.toString().toLowerCase(Locale.ROOT))) {
+                            int savVal = dictionaryList.get(word.toString().toLowerCase(Locale.ROOT));
+                            dictionaryList.put(word.toString().toLowerCase(Locale.ROOT), savVal+1);
+                            word.delete(0, word.length());
                             continue;
                         } else {
-                            dictionaryList.put(word.toLowerCase(), 1);
-                            word = "";
+                            dictionaryList.put(word.toString().toLowerCase(), 1);
+                            word.delete(0, word.length());
                         }
                    }
                 }
             }
+        } catch (Exception e) {
+            System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
+            System.exit(1);
         }
     }
 
     // запись результата в два файла отчета
-    private void save() throws IOException {
-        try(PrintWriter pw = new PrintWriter(REPORT1)) {
-            TreeMap<String , Integer> sorted = new TreeMap<>();
-            sorted.putAll(dictionaryList);
-            for (Map.Entry<String, Integer> kv : sorted.entrySet()) {
-                sorted.forEach((k,v) -> pw.println(k + " relative=" + v + "  absolute=" + (double)v/sorted.size()));
-            }
+    public void saveReport(){
+        final Map<String , Integer> sorted = sortedMap(dictionaryList);
 
+        try {
+            PrintWriter pw = new PrintWriter(Main.REPORT1);
+            for (Map.Entry<String, Integer> kv : sorted.entrySet()) {
+                Map<String, Integer> finalSorted = sorted;
+                sorted.forEach((k, v) -> pw.println(k + " relative=" + v + "  absolute=" + (double)v/ finalSorted.size()));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Some kind of problem with creating file " + Main.REPORT1);
+            System.exit(1);
         }
 
-        try(PrintWriter pw = new PrintWriter(REPORT2)) {
-            TreeMap<String , Integer> sorted = new TreeMap<>();
-            sorted.putAll(dictionaryList);
 
-            sorted.entrySet().stream().sorted(Map.Entry.<String , Integer>comparingByValue().reversed())
+        try {
+            PrintWriter pw = new PrintWriter(Main.REPORT2);
+
+            // создадим компаратор, который будет сравнивать значения, а не ключи
+            Comparator<String > comparator =  new Comparator<String>() {
+                public int compare(String  k1,String  k2) {
+                    int compare = sorted.get(k2).compareTo(sorted.get(k1));
+                    if (compare == 0)
+                        return 1;
+                    return compare;
+                }
+            };
+            Map<String, Integer> sortedByValues = new TreeMap<>(comparator);
+            sortedByValues.putAll(sorted);
+
+            for (Map.Entry<String, Integer> kv : sortedByValues.entrySet()) {
+                sortedByValues.forEach((k,v) -> pw.println(k + " relative=" + v + "  absolute=" + (double)v/ sorted.size()));
+            }
+/*
+            dictionaryList.entrySet().stream().sorted(Map.Entry.<String , Integer>comparingByValue().reversed())
                     .forEach(x -> pw.println(x.getKey() + "  relative=" + x.getValue() + " absolute="
                             + (double)x.getValue()/dictionaryList.size()));
+
+ */
+        } catch (FileNotFoundException e) {
+            System.out.println("Some kind of problem with creating file " + Main.REPORT2);
+            System.exit(1);
         }
+
     }
- }
+
+    public static void check(String fileName) {
+            File file = new File(fileName);
+            if (!file.isFile()) {
+                System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
+                System.exit(1);
+            }
+    }
+
+    private static Map<String , Integer> sortedMap(Map<String, Integer> list) {
+        Map<String , Integer> sorted = new TreeMap<>();
+        sorted.putAll(list);
+        return sorted;
+    }
+}

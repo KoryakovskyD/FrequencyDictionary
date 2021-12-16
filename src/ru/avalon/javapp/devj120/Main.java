@@ -1,8 +1,14 @@
 package ru.avalon.javapp.devj120;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class Main {
+    public static final String REPORT1 = "report1.txt";
+    public static final String REPORT2 = "report2.txt";
+
 
     public static void main(String[] args) {
 
@@ -10,21 +16,15 @@ public class Main {
         if (args.length == 0) {
             help();
         }
-        // проверка на корректность заданных параметров
-        Check(args);
 
-        for (String fileName: args) {
-            FrequencyDictionary fd = new FrequencyDictionary(fileName);
-        }
-    }
+        createNewFile(REPORT1);
+        createNewFile(REPORT2);
 
-    private static void Check(String[] args) {
-        for (String fileName: args) {
-            File file = new File(fileName);
-            if (!file.isFile()) {
-                System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
-                System.exit(1);
-            }
+        for (String fileName : args) {
+            FrequencyDictionary fd = new FrequencyDictionary();
+            fd.check(fileName);
+            fd.read(fileName);
+            fd.saveReport();
         }
     }
 
@@ -33,5 +33,27 @@ public class Main {
                 "Input parameters: file names\n" +
                 "Examples: FrequencyDictionary text1 text2 text3\n");
         System.exit(0);
+    }
+
+    private static PrintWriter createReportFiles(String report) {
+        try (PrintWriter pw = new PrintWriter(report)) {
+            return pw;
+        } catch (FileNotFoundException e) {
+            System.out.println("Some kind of problem with creating file " + report);
+            System.exit(1);
+            return null;
+        }
+    }
+
+    private static void createNewFile(String fileName) {
+        File file = new File(fileName);
+        try {
+            if (!file.createNewFile()) {
+                file.delete();
+                file.createNewFile();
+            }
+        } catch (IOException e) {
+            System.out.println("Some kind of problem with creating file " + fileName);
+        }
     }
 }
