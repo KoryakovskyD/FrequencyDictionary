@@ -3,11 +3,13 @@ package ru.avalon.javapp.devj120;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
     public static final String REPORT1 = "report1.txt";
     public static final String REPORT2 = "report2.txt";
+    private static Map<String, Integer > dictionaryList = new HashMap<>();
 
 
     public static void main(String[] args) {
@@ -21,10 +23,21 @@ public class Main {
         createNewFile(REPORT2);
 
         for (String fileName : args) {
-            FrequencyDictionary fd = new FrequencyDictionary();
+            FrequencyDictionary fd = new FrequencyDictionary(dictionaryList);
             fd.check(fileName);
-            fd.read(fileName);
-            fd.saveReport();
+            try {
+                dictionaryList = fd.read(fileName);
+            } catch (IOException e) {
+                System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
+                System.exit(1);
+            }
+        }
+
+        try {
+            FrequencyDictionary.saveReport(dictionaryList);
+        } catch (FileNotFoundException e) {
+            System.out.println("Some kind of problem with writing in file " + REPORT1 + " or " + REPORT2);
+            System.exit(1);
         }
     }
 
@@ -35,15 +48,6 @@ public class Main {
         System.exit(0);
     }
 
-    private static PrintWriter createReportFiles(String report) {
-        try (PrintWriter pw = new PrintWriter(report)) {
-            return pw;
-        } catch (FileNotFoundException e) {
-            System.out.println("Some kind of problem with creating file " + report);
-            System.exit(1);
-            return null;
-        }
-    }
 
     private static void createNewFile(String fileName) {
         File file = new File(fileName);

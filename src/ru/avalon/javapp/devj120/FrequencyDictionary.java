@@ -4,10 +4,14 @@ import java.io.*;
 import java.util.*;
 
 public class FrequencyDictionary {
-    private final Map<String, Integer > dictionaryList = new HashMap<>();
+    Map<String, Integer > dictionaryList;
+
+    public FrequencyDictionary(Map<String, Integer> list) {
+        this.dictionaryList = list;
+        }
 
     // чтение файла
-    public void read(String fileName){
+    public Map<String, Integer> read(String fileName) throws IOException {
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String s;
             while ((s = br.readLine()) != null) {
@@ -36,34 +40,28 @@ public class FrequencyDictionary {
                    }
                 }
             }
-        } catch (Exception e) {
-            System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
-            System.exit(1);
         }
+        return dictionaryList;
     }
 
     // запись результата в два файла отчета
-    public void saveReport(){
+    public static void saveReport(Map<String, Integer> dictionaryList) throws FileNotFoundException {
         final Map<String , Integer> sorted = sortedMap(dictionaryList);
 
-        try {
             PrintWriter pw = new PrintWriter(Main.REPORT1);
-            for (Map.Entry<String, Integer> kv : sorted.entrySet()) {
-                Map<String, Integer> finalSorted = sorted;
-                sorted.forEach((k, v) -> pw.println(k + " relative=" + v + "  absolute=" + (double)v/ finalSorted.size()));
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Some kind of problem with creating file " + Main.REPORT1);
-            System.exit(1);
-        }
+
+            sorted.forEach((k, v) -> {
+               pw.println(k + " relative=" + v + "  absolute=" + (double) v / sorted.size());
+            });
 
 
-        try {
-            PrintWriter pw = new PrintWriter(Main.REPORT2);
+
+
+            PrintWriter pw2 = new PrintWriter(Main.REPORT2);
 
             // создадим компаратор, который будет сравнивать значения, а не ключи
-            Comparator<String > comparator =  new Comparator<String>() {
-                public int compare(String  k1,String  k2) {
+            Comparator<String> comparator = new Comparator<String>() {
+                public int compare(String k1, String k2) {
                     int compare = sorted.get(k2).compareTo(sorted.get(k1));
                     if (compare == 0)
                         return 1;
@@ -73,20 +71,15 @@ public class FrequencyDictionary {
             Map<String, Integer> sortedByValues = new TreeMap<>(comparator);
             sortedByValues.putAll(sorted);
 
-            for (Map.Entry<String, Integer> kv : sortedByValues.entrySet()) {
-                sortedByValues.forEach((k,v) -> pw.println(k + " relative=" + v + "  absolute=" + (double)v/ sorted.size()));
-            }
+            sortedByValues.forEach((k, v) -> {
+                pw2.println(k + " relative=" + v + "  absolute=" + (double) v / sorted.size());
+            });
 /*
             dictionaryList.entrySet().stream().sorted(Map.Entry.<String , Integer>comparingByValue().reversed())
                     .forEach(x -> pw.println(x.getKey() + "  relative=" + x.getValue() + " absolute="
                             + (double)x.getValue()/dictionaryList.size()));
 
  */
-        } catch (FileNotFoundException e) {
-            System.out.println("Some kind of problem with creating file " + Main.REPORT2);
-            System.exit(1);
-        }
-
     }
 
     public static void check(String fileName) {
