@@ -4,11 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public class FrequencyDictionary {
-    Map<String, Integer > dictionaryList;
-
-    public FrequencyDictionary(Map<String, Integer> list) {
-        this.dictionaryList = list;
-        }
+    static Map<String, Integer > dictionaryList = new HashMap<>();
 
     // чтение файла
     public Map<String, Integer> read(String fileName) throws IOException {
@@ -45,20 +41,16 @@ public class FrequencyDictionary {
     }
 
     // запись результата в два файла отчета
-    public static void saveReport(Map<String, Integer> dictionaryList) throws FileNotFoundException {
+    public static void saveReport() throws FileNotFoundException {
         final Map<String , Integer> sorted = sortedMap(dictionaryList);
 
             PrintWriter pw = new PrintWriter(Main.REPORT1);
-
             sorted.forEach((k, v) -> {
                pw.println(k + " relative=" + v + "  absolute=" + (double) v / sorted.size());
             });
 
 
-
-
             PrintWriter pw2 = new PrintWriter(Main.REPORT2);
-
             // создадим компаратор, который будет сравнивать значения, а не ключи
             Comparator<String> comparator = new Comparator<String>() {
                 public int compare(String k1, String k2) {
@@ -74,20 +66,11 @@ public class FrequencyDictionary {
             sortedByValues.forEach((k, v) -> {
                 pw2.println(k + " relative=" + v + "  absolute=" + (double) v / sorted.size());
             });
-/*
+/*          Первый вариант сортировки
             dictionaryList.entrySet().stream().sorted(Map.Entry.<String , Integer>comparingByValue().reversed())
                     .forEach(x -> pw.println(x.getKey() + "  relative=" + x.getValue() + " absolute="
                             + (double)x.getValue()/dictionaryList.size()));
-
  */
-    }
-
-    public static void check(String fileName) {
-            File file = new File(fileName);
-            if (!file.isFile()) {
-                System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
-                System.exit(1);
-            }
     }
 
     private static Map<String , Integer> sortedMap(Map<String, Integer> list) {

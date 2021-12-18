@@ -1,15 +1,11 @@
 package ru.avalon.javapp.devj120;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Main {
     public static final String REPORT1 = "report1.txt";
     public static final String REPORT2 = "report2.txt";
-    private static Map<String, Integer > dictionaryList = new HashMap<>();
 
 
     public static void main(String[] args) {
@@ -19,22 +15,18 @@ public class Main {
             help();
         }
 
-        createNewFile(REPORT1);
-        createNewFile(REPORT2);
-
+        FrequencyDictionary fd = new FrequencyDictionary();
         for (String fileName : args) {
-            FrequencyDictionary fd = new FrequencyDictionary(dictionaryList);
-            fd.check(fileName);
             try {
-                dictionaryList = fd.read(fileName);
+                 fd.read(fileName);
             } catch (IOException e) {
-                System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
-                System.exit(1);
+                 System.out.println("File \"" + fileName + "\" isn't exist or can't read.");
+                 System.exit(1);
             }
         }
 
         try {
-            FrequencyDictionary.saveReport(dictionaryList);
+            fd.saveReport();
         } catch (FileNotFoundException e) {
             System.out.println("Some kind of problem with writing in file " + REPORT1 + " or " + REPORT2);
             System.exit(1);
@@ -46,18 +38,5 @@ public class Main {
                 "Input parameters: file names\n" +
                 "Examples: FrequencyDictionary text1 text2 text3\n");
         System.exit(0);
-    }
-
-
-    private static void createNewFile(String fileName) {
-        File file = new File(fileName);
-        try {
-            if (!file.createNewFile()) {
-                file.delete();
-                file.createNewFile();
-            }
-        } catch (IOException e) {
-            System.out.println("Some kind of problem with creating file " + fileName);
-        }
     }
 }
