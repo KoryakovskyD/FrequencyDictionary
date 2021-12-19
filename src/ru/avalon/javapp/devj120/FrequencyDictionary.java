@@ -42,7 +42,7 @@ public class FrequencyDictionary {
 
     // запись результата в два файла отчета
     public static void saveReport() throws FileNotFoundException {
-        final Map<String , Integer> sorted = sortedMap(dictionaryList);
+            final Map<String , Integer> sorted = sortedMap(dictionaryList);
 
             PrintWriter pw = new PrintWriter(Main.REPORT1);
             sorted.forEach((k, v) -> {
@@ -50,11 +50,13 @@ public class FrequencyDictionary {
             });
 
 
+
             PrintWriter pw2 = new PrintWriter(Main.REPORT2);
             // создадим компаратор, который будет сравнивать значения, а не ключи
             Comparator<String> comparator = new Comparator<String>() {
                 public int compare(String k1, String k2) {
-                    int compare = sorted.get(k2).compareTo(sorted.get(k1));
+                    dictionaryList.get(k1).compareTo(dictionaryList.get(k2));
+                    int compare = dictionaryList.get(k2).compareTo(dictionaryList.get(k1));
                     if (compare == 0)
                         return 1;
                     return compare;
@@ -62,6 +64,7 @@ public class FrequencyDictionary {
             };
             Map<String, Integer> sortedByValues = new TreeMap<>(comparator);
             sortedByValues.putAll(sorted);
+
 
             sortedByValues.forEach((k, v) -> {
                 pw2.println(k + " relative=" + v + "  absolute=" + (double) v / sorted.size());
